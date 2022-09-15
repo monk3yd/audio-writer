@@ -1,9 +1,24 @@
+# https://pythonbasics.org/transcribe-audio/
+
+
+import speech_recognition as sr
+from pydub import AudioSegment
+
+
 def main():
-    # Load mp3 format audio file
-    # Convert mp3 to wav format
-    # Load wav format audio file
+    AUDIO_FILE = "transcript.wav"
+
+    # Load & convert mp3 to wav format saving it
+    sound = AudioSegment.from_mp3("audio.MP3")
+    sound.export(AUDIO_FILE, format="wav")
+
     # Feed file to speech recognition system
+    r = sr.Recognizer()
     # Convert audio file to text
+    with sr.AudioFile(AUDIO_FILE) as source:
+        audio = r.record(source)  # read entire audio file
+        print(f"Transcription: {r.recognize_google(audio, language='es')}")
+
     # Save text to txt file
     ...
 
