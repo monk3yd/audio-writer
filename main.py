@@ -1,26 +1,35 @@
-# https://pythonbasics.org/transcribe-audio/
-
-
-import speech_recognition as sr
-from pydub import AudioSegment
-
+# https://cloud.google.com/speech-to-text/docs/async-recognize
 
 def main():
-    AUDIO_FILE = "transcript.wav"
-
-    # Load & convert mp3 to wav format saving it
-    sound = AudioSegment.from_mp3("audio.MP3")
-    sound.export(AUDIO_FILE, format="wav")
-
-    # Feed file to speech recognition system
-    r = sr.Recognizer()
-    # Convert audio file to text
-    with sr.AudioFile(AUDIO_FILE) as source:
-        audio = r.record(source)  # read entire audio file
-        print(f"Transcription: {r.recognize_google(audio, language='es')}")
-
-    # Save text to txt file
+    bucket_uri = ""
+    transcribe_gcs(bucket_uri)
     ...
+
+
+def transcribe_gcs(gcs_uri):
+    """Asynchronously transcribes the audio file specified by the gcs_uri."""
+    from google.cloud import speech
+
+    client = speech.SpeechClient()
+
+    audio = speech.RecognitionAudio(uri=gcs_uri)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=48000,
+        language_code="es_ES",
+    )
+
+    operation = client.long_running_recognize(config=config, audio=audio)
+
+    print("Waiting for operation to complete...")
+    response = operation.result(timeout=90)
+
+    # Each result is for a consecutive portion of the audio. Iterate through
+    # them to get the transcripts for the entire audio file.
+    for result in response.results:
+        # The first alternative is the most likely one for this portion.
+        print(f"Transcript: {result.alternatives[0].transcript}")
+        print(f"Confidence: {result.alternatives[0].confidence}")
 
 
 if __name__ == "__main__":
