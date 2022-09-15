@@ -14,8 +14,11 @@ def transcribe_gcs(gcs_uri):
 
     audio = speech.RecognitionAudio(uri=gcs_uri)
     config = speech.RecognitionConfig(
-        language_code="es-CL",
+        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=48000,
+        language_code="es_ES",
         audio_channel_count=2,
+        enable_word_time_offsets=True,
     )
 
     operation = client.long_running_recognize(config=config, audio=audio)
