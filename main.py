@@ -1,7 +1,7 @@
 # https://cloud.google.com/speech-to-text/docs/async-recognize
 
 def main():
-    bucket_uri = ""
+    bucket_uri = "gs://audio-writer-bucket/audio.wav"
     transcribe_gcs(bucket_uri)
     ...
 
@@ -14,15 +14,14 @@ def transcribe_gcs(gcs_uri):
 
     audio = speech.RecognitionAudio(uri=gcs_uri)
     config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=48000,
-        language_code="es_ES",
+        language_code="es-CL",
+        audio_channel_count=2,
     )
 
     operation = client.long_running_recognize(config=config, audio=audio)
 
     print("Waiting for operation to complete...")
-    response = operation.result(timeout=90)
+    response = operation.result(timeout=3000)
 
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
